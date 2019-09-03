@@ -8,26 +8,14 @@ def lambda_handler(event, context):
     table = dynamodb.Table('EveningCommute2')
     response = table.scan()
     
-    # print('response type: ', type(response))
     print('response size: ', len(response))
-    # print(response.values())
     
     data = response['Items']
-    # print('data type: ', type(data))
-    # print(data)
     
     while response.get('LastEvaluatedKey'):
         print('Getting data')
         response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
         data.extend(response['Items'])
-        
-    # print('retrieved entries: ', len(data))
-    # print('data type: ', type(data))
-    # one = data[0]
-    # print('Element 1: ', one)
-    # print('Element 1 type: ', type(one))
-    # vals = list(one.values())
-    # print('val one: ', vals[0])
 
     string = "Date (S),Day (S),Hour (S),Duration (S)\n"
     
@@ -56,7 +44,6 @@ def lambda_handler(event, context):
     s3 = boto3.resource('s3')
     object = s3.Object('commuting-data', file)
     object.put(Body=string)
-    # object.put(Body=json.dumps(data))
 
     return {
         'statusCode': 200,
